@@ -1,0 +1,318 @@
+<div id="rhfinancie-app"></div>
+
+<style>
+  :root{
+    --bg:#ffffff;
+    --card:#ffffff;
+    --text:#0b0b0b;
+    --muted:#444;
+    --blue:#13a0d3;
+    --orange:#f86200;
+    --border:rgba(0,0,0,.10);
+  }
+
+  #rhfinancie-app{max-width:980px;margin:0 auto;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);}
+  .rh-top{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:16px 16px;border:1px solid var(--border);border-radius:18px;background:var(--card);
+  }
+  .rh-brand b{font-size:18px}
+  .rh-brand span{display:block;margin-top:2px;color:var(--muted);font-size:13px}
+  .rh-pill{
+    display:inline-flex;gap:8px;align-items:center;
+    padding:10px 12px;border-radius:999px;border:1px solid var(--border);
+    background:#fff;color:var(--muted);font-size:13px;white-space:nowrap;
+  }
+
+  .rh-grid{display:grid;grid-template-columns:340px 1fr;gap:16px;margin-top:16px}
+  @media (max-width:860px){.rh-grid{grid-template-columns:1fr}}
+
+  .rh-panel{border:1px solid var(--border);border-radius:18px;background:var(--card);overflow:hidden}
+  .rh-hd{padding:14px 16px;border-bottom:1px solid var(--border)}
+  .rh-hd h2{margin:0;font-size:15px}
+  .rh-bd{padding:14px 16px}
+
+  .rh-menu{display:flex;flex-direction:column;gap:10px}
+  .rh-btn{
+    width:100%;text-align:left;
+    padding:14px;border-radius:14px;border:2px solid rgba(19,160,211,.25);
+    background:#fff;color:var(--text);cursor:pointer;transition:.15s;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .rh-btn:hover{transform:translateY(-1px)}
+  .rh-btn.active{
+    border-color:rgba(19,160,211,.8);
+    box-shadow:0 0 0 3px rgba(19,160,211,.12);
+  }
+  .rh-btn small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+  .rh-arrow{opacity:.8}
+
+  .rh-screen{display:none;animation:fade .18s ease-out}
+  .rh-screen.active{display:block}
+  @keyframes fade{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .rh-card{
+    border:1px solid var(--border);
+    border-radius:16px;background:#fff;padding:14px;
+  }
+  .rh-card h3{margin:0 0 6px 0;font-size:16px;color:var(--blue)}
+  .rh-card p{margin:0;color:var(--muted);line-height:1.45}
+
+  details{
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:12px;background:#fff;
+  }
+  details + details{margin-top:10px}
+  summary{cursor:pointer;font-weight:700;color:var(--text)}
+  details p{margin:10px 0 0 0;color:var(--muted);line-height:1.45}
+
+  .rh-ctaRow{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+  .rh-cta{
+    border:none;cursor:pointer;padding:12px 14px;border-radius:14px;
+    font-weight:800;
+  }
+  .rh-cta.primary{
+    background:var(--blue);color:#fff;
+  }
+  .rh-cta.orange{
+    background:var(--orange);color:#fff;
+  }
+  .rh-cta.secondary{
+    background:#fff;border:1px solid var(--border);color:var(--text);font-weight:700;
+  }
+
+  .rh-note{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45}
+  .rh-footer{margin-top:14px;color:var(--muted);font-size:12px;text-align:center}
+</style>
+
+<script>
+(function(){
+  // EDITUJ TU
+  const WHATSAPP_NUMBER = "421910910993"; // bez +
+  const EMAIL = "richard.hojstric@os.allianz.sk";
+
+  const app = document.getElementById("rhfinancie-app");
+
+  const screens = [
+    { id:"majetok", icon:"🏠", title:"Poistenie bývania", sub:"Dom / byt, domácnosť, zodpovednosť" },
+    { id:"cestovne", icon:"✈️", title:"Cestovné poistenie", sub:"More, hory, lyžovačka, športy" },
+    { id:"auto", icon:"🚗", title:"Auto – PZP / Kasko", sub:"Čo rieši PZP a čo kasko" },
+    { id:"zivot", icon:"❤️", title:"Životné poistenie", sub:"Rodina, príjem, hypotéka" },
+    { id:"uvery", icon:"💳", title:"Úvery", sub:"Prehľad možností a postup" },
+    { id:"refi", icon:"🔄", title:"Refinancovanie", sub:"Zníženie splátky / úroku, konsolidácia" },
+    { id:"pilier", icon:"🏦", title:"II. a III. pilier", sub:"Dôchodok – zrozumiteľne" },
+    { id:"kontakt", icon:"💬", title:"Kontakt", sub:"Rýchla správa cez WhatsApp alebo e-mail" },
+  ];
+
+  const titleMap = Object.fromEntries(screens.map(s => [s.id, s.title]));
+
+  function waLink(topic){
+    const msg = encodeURIComponent("Ahoj, chcem sa poradiť. Téma: " + topic + ". ");
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+  }
+  function mailLink(topic){
+    const subject = encodeURIComponent("RHFinancie – " + topic);
+    const body = encodeURIComponent("Ahoj,\n\nchcem riešiť tému: " + topic + "\n\nMoja situácia stručne:\n- \n");
+    return `mailto:${EMAIL}?subject=${subject}&body=${body}`;
+  }
+
+  app.innerHTML = `
+    <div class="rh-top">
+      <div class="rh-brand">
+        <b>RHFinancie – klikateľný prehľad</b>
+        <span>Vyber tému a klikni na WhatsApp alebo e-mail.</span>
+      </div>
+      <div class="rh-pill">📱 mobile friendly • 🔗 1 link</div>
+    </div>
+
+    <div class="rh-grid">
+      <div class="rh-panel">
+        <div class="rh-hd"><h2>Menu</h2></div>
+        <div class="rh-bd">
+          <div class="rh-menu">
+            ${screens.map((s, i) => `
+              <button class="rh-btn ${i===0?'active':''}" data-screen="${s.id}">
+                <div>
+                  ${s.icon} ${s.title}
+                  <small>${s.sub}</small>
+                </div>
+                <span class="rh-arrow">›</span>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+
+      <div class="rh-panel">
+        <div class="rh-hd"><h2 id="rh-title">${screens[0].title}</h2></div>
+        <div class="rh-bd">
+
+          ${screenContent()}
+
+          <div class="rh-footer">
+            Info je orientačné – konkrétne nastavenie závisí od situácie a zvoleného produktu.
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  function screenContent(){
+    return `
+      <section class="rh-screen active" id="majetok">
+        <div class="rh-card">
+          <h3>🏠 Poistenie bývania</h3>
+          <p>Nehnuteľnosť (stavba) • domácnosť (veci) • zodpovednosť (škody iným).</p>
+          <div class="rh-ctaRow">
+            <a class="rh-cta primary" href="${waLink("Poistenie bývania")}">WhatsApp</a>
+            <a class="rh-cta orange" href="${mailLink("Poistenie bývania")}">E-mail</a>
+          </div>
+        </div>
+        <details>
+          <summary>Čo sa oplatí pripraviť</summary>
+          <p>Adresa, typ a rozloha, hodnota nehnuteľnosti/domácnosti, hypotéka, zabezpečenie.</p>
+        </details>
+      </section>
+
+      <section class="rh-screen" id="cestovne">
+        <div class="rh-card">
+          <h3>✈️ Cestovné poistenie</h3>
+          <p>Liečebné náklady, asistenčné služby, úraz, zodpovednosť, prípadne storno – podľa nastavenia.</p>
+          <div class="rh-ctaRow">
+            <a class="rh-cta primary" href="${waLink("Cestovné poistenie")}">WhatsApp</a>
+            <a class="rh-cta orange" href="${mailLink("Cestovné poistenie")}">E-mail</a>
+          </div>
+        </div>
+        <details>
+          <summary>Hory / lyžovanie</summary>
+          <p>Sleduj krytie športov a zásah horskej služby (podľa produktu a balíka).</p>
+        </details>
+      </section>
+
+      <section class="rh-screen" id="auto">
+        <div class="rh-card">
+          <h3>🚗 Auto – PZP / Kasko</h3>
+          <p>PZP rieši škody iným • kasko rieši tvoje auto (havária/živly/vandalizmus – podľa balíka).</p>
+          <div class="rh-ctaRow">
+            <a class="rh-cta primary" href="${waLink("Auto – PZP/Kasko")}">WhatsApp</a>
+            <a class="rh-cta orange" href="${mailLink("Auto – PZP/Kasko")}">E-mail</a>
+          </div>
+        </div>
+        <details>
+          <summary>Na rýchle nacenenie</summary>
+          <p>EČV alebo VIN, rok, model, výkon, miesto používania, škodový priebeh.</p>
+        </details>
+      </section>
+
+      <section class="rh-screen" id="zivot">
+        <div class="rh-card">
+          <h3>❤️ Životné poistenie</h3>
+          <p>Najmä keď chceš chrániť príjem, rodinu a záväzky (napr. hypotéku).</p>
+          <div class="rh-ctaRow">
+            <a class="rh-cta primary" href="${waLink("Životné poistenie")}">WhatsApp</a>
+            <a class="rh-cta orange" href="${mailLink("Životné poistenie")}">E-mail</a>
+          </div>
+        </div>
+        <details>
+          <summary>Čo si pripraviť</summary>
+          <p>Príjem, výdavky, záväzky, rodinná situácia a priority (hypotéka/príjem/rodina).</p>
+        </details>
+      </section>
+
+      <section class="rh-screen" id="uvery">
+        <div class="rh-card">
+          <h3>💳 Úvery</h3>
+          <p>Rýchlo si prejdeme možnosti a čo dáva zmysel podľa príjmu, záväzkov a cieľa.</p>
+          <div class="rh-ctaRow">
+            <a class="rh-cta primary" href="${waLink("Úvery")}">WhatsApp</a>
+            <a class="rh-cta orange" href="${mailLink("Úvery")}">E-mail</a>
+          </div>
+        </div>
+        <details>
+          <summary>Na rýchle posúdenie</summary>
+          <p>Výška úveru, príjem, existujúce splátky, účel (bývanie/konsolidácia/iné).</p>
+        </details>
+      </section>
+
+      <section class="rh-screen" id="refi">
+        <div class="rh-card">
+          <h3>🔄 Refinancovanie</h3>
+          <p>Overíme, či sa dá znížiť splátka/úrok, prípadne upraviť fixácia alebo skonsolidovať.</p>
+          <div class="rh-ctaRow">
+            <a class="rh-cta primary" href="${waLink("Refinancovanie")}">WhatsApp</a>
+            <a class="rh-cta orange" href="${mailLink("Refinancovanie")}">E-mail</a>
+          </div>
+        </div>
+        <details>
+          <summary>Stačí poslať</summary>
+          <p>Aktuálnu banku, zostatok, splátku, koniec fixácie (aspoň orientačne).</p>
+        </details>
+      </section>
+
+      <section class="rh-screen" id="pilier">
+        <div class="rh-card">
+          <h3>🏦 II. a III. pilier</h3>
+          <p>Zrozumiteľne si prejdeme nastavenie, príspevky a čo to spraví v dlhom horizonte.</p>
+          <div class="rh-ctaRow">
+            <a class="rh-cta primary" href="${waLink("II. a III. pilier")}">WhatsApp</a>
+            <a class="rh-cta orange" href="${mailLink("II. a III. pilier")}">E-mail</a>
+          </div>
+        </div>
+        <details>
+          <summary>Na začiatok</summary>
+          <p>Vek, približný príjem, či máš II. pilier a aký je cieľ (rezerva/dôchodok).</p>
+        </details>
+      </section>
+
+      <section class="rh-screen" id="kontakt">
+        <div class="rh-card">
+          <h3>💬 Kontakt</h3>
+          <p>Napíš mi tému a jednu vetu o situácii. Odpoviem ti s rýchlym postupom.</p>
+          <div class="rh-ctaRow">
+            <a class="rh-cta primary" href="${waLink("Rýchla konzultácia")}">WhatsApp</a>
+            <a class="rh-cta orange" href="${mailLink("Rýchla konzultácia")}">E-mail</a>
+            <button class="rh-cta secondary" type="button" id="rh-copy">Skopírovať link</button>
+          </div>
+          <div class="rh-note" id="rh-copied" style="display:none;">✅ Link skopírovaný.</div>
+        </div>
+      </section>
+    `;
+  }
+
+  function setActive(id){
+    document.querySelectorAll(".rh-screen").forEach(s=>s.classList.remove("active"));
+    const el = document.getElementById(id);
+    if(el) el.classList.add("active");
+
+    document.querySelectorAll(".rh-btn").forEach(b=>b.classList.remove("active"));
+    const btn = document.querySelector(`.rh-btn[data-screen="${id}"]`);
+    if(btn) btn.classList.add("active");
+
+    document.getElementById("rh-title").textContent = titleMap[id] || "RHFinancie";
+    history.replaceState(null,"","#"+id);
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  document.querySelectorAll(".rh-btn[data-screen]").forEach(btn=>{
+    btn.addEventListener("click", ()=> setActive(btn.dataset.screen));
+  });
+
+  const copyBtn = document.getElementById("rh-copy");
+  if(copyBtn){
+    copyBtn.addEventListener("click", async ()=>{
+      try{
+        await navigator.clipboard.writeText(window.location.href);
+        const c = document.getElementById("rh-copied");
+        c.style.display="block";
+        setTimeout(()=>c.style.display="none", 1600);
+      }catch(e){
+        alert("Skopírovanie nevyšlo. Link: " + window.location.href);
+      }
+    });
+  }
+
+  const initial = (location.hash || "#majetok").replace("#","");
+  setActive(titleMap[initial] ? initial : "majetok");
+})();
+</script>
